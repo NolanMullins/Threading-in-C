@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #define NUM_THREADS     7
 
 void *PrintHello(void *threadid)
@@ -29,6 +30,7 @@ int main (int argc, char *argv[])
    pthread_t threads[NUM_THREADS];
    int rc;
    long t;
+   printf("%ld\n", sysconf(_SC_NPROCESSORS_ONLN));
    for(t=0; t<NUM_THREADS; t++){
       printf("In main: creating thread %ld\n", t);
       rc = pthread_create(&threads[t], NULL, runfor, (void *)t);
