@@ -13,7 +13,7 @@ run:
 main.o: src/main.c 
 	gcc -c src/main.c $(FLAGS)
 list.o: src/list.c include/list.h
-	gcc -c src/list.c $(FLAGS)
+	gcc -c src/list.c $(FLAGS) 
 util.o: src/util.c include/util.h
 	gcc -c src/util.c $(FLAGS)
 fnc.o: src/fnc.c include/fnc.h
