@@ -1,43 +1,59 @@
+#define _POSIX_C_SOURCE 199309L
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#define NUM_THREADS     7
+#define NUM_THREADS     4
 
 void *PrintHello(void *threadid)
 {
    long tid;
    tid = (long)threadid;
    printf("Hello World! It's me, thread #%ld!\n", tid);
-   pthread_exit(NULL);
+   return NULL;
 }
 
 void *runfor(void *threadid)
 {
-   clock_t start = clock(), diff;
-   int msec = 0;
-   while (msec/1000 < 500)
+   struct timespec start, finish;
+   double elapsed;
+
+   clock_gettime(CLOCK_MONOTONIC, &start);
+
+   while (elapsed < 10)
    {
-      diff = clock() - start;
-      msec = diff * 1000 / CLOCKS_PER_SEC;
+      //printf("%lf\n", elapsed);
+      clock_gettime(CLOCK_MONOTONIC, &finish);
+
+      elapsed = (finish.tv_sec - start.tv_sec);
+      elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
    }
-   pthread_exit(NULL);
+
+   
+   return NULL;
 }
 
 int main (int argc, char *argv[])
 {
-   pthread_t threads[NUM_THREADS];
+   int threadCount = sysconf(_SC_NPROCESSORS_ONLN);
+   pthread_t threads[threadCount];
    int rc;
    long t;
-   printf("%ld\n", sysconf(_SC_NPROCESSORS_ONLN));
-   for(t=0; t<NUM_THREADS; t++){
+   
+   printf("Available threads: %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
+   for(t=0; t<threadCount; t++){
       printf("In main: creating thread %ld\n", t);
       rc = pthread_create(&threads[t], NULL, runfor, (void *)t);
       if (rc){
          printf("ERROR; return code from pthread_create() is %d\n", rc);
          exit(-1);
       }
+   }
+   for(int i = 0; i < threadCount; i ++)
+   {
+      pthread_join(threads[i],NULL);
    }
 
    /* Last thing that main() should do */
